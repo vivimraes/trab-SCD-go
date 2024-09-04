@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	n           = 3 // Número de processos a serem iniciados
+	n           = 4 // Número de processos a serem iniciados
 	repetitions = 5 // Número de repetições para cada processo
 )
 

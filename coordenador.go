@@ -59,9 +59,12 @@ func (c *Coordinator) processMessage(message string, conn net.Conn) {
 		c.sendGrant(fields[1], conn)
 	case "3": // RELEASE
 		// Atualizar a fila e contar
-		c.processCount[atoi(fields[1])]++
-		c.queue = c.queue[1:]
-		fmt.Printf("Process %s released the critical section.\n", fields[1])
+		processID := atoi(fields[1])
+		c.processCount[processID]++
+		if len(c.queue) > 0 {
+			c.queue = c.queue[1:] // Remove o primeiro pedido da fila
+		}
+		fmt.Printf("Process %d released the critical section.\n", processID)
 	}
 }
 
@@ -105,13 +108,18 @@ func (c *Coordinator) executeCommand(command string) {
 	case "1": // Imprimir a fila de pedidos atual
 		fmt.Println("Fila de Pedidos:", c.queue)
 	case "2": // Imprimir quantas vezes cada processo foi atendido
-		fmt.Println("Contagem de Processos:", c.processCount)
+		fmt.Println("Contagem de Processos:")
+		for id, count := range c.processCount {
+			fmt.Printf("Process %d: %d vezes\n", id, count)
+		}
 	case "3": // Encerrar a execução
 		c.shutdown()
 	}
 }
 
 func (c *Coordinator) shutdown() {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	// Limpar os logs e resultado.txt
 	os.Remove("resultado.txt")
 	os.Remove(logFile)
