@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	n           = 4 
+	n           = 3 
 	repetitions = 5 
 )
 
