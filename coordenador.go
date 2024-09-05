@@ -13,7 +13,7 @@ import (
 
 const (
 	address   = "localhost:8080"
-	F         = 10 // Tamanho fixo da mensagem
+	F         = 10 
 	separator = "|"
 	logFile   = "coordinator_log.txt"
 )
@@ -36,7 +36,7 @@ func (c *Coordinator) handleConnection(conn net.Conn) {
 		message := string(buffer)
 		fmt.Println("Received:", message)
 
-		// Processamento da mensagem (REQUEST, GRANT, RELEASE)
+		
 		c.processMessage(message, conn)
 	}
 }
@@ -45,24 +45,24 @@ func (c *Coordinator) processMessage(message string, conn net.Conn) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	// Parse e log da mensagem
+	
 	fields := parseMessage(message)
 	timestamp := time.Now().Format(time.RFC3339)
 	c.logs = append(c.logs, fmt.Sprintf("%s - Received: %s", timestamp, message))
 
-	// Gravar no arquivo de log
+	
 	c.logToFile(fmt.Sprintf("%s - Received: %s", timestamp, message))
 
 	switch fields[0] {
-	case "1": // REQUEST
+	case "1": 
 		c.queue = append(c.queue, message)
 		c.sendGrant(fields[1], conn)
-	case "3": // RELEASE
-		// Atualizar a fila e contar
+	case "3": 
+		
 		processID := atoi(fields[1])
 		c.processCount[processID]++
 		if len(c.queue) > 0 {
-			c.queue = c.queue[1:] // Remove o primeiro pedido da fila
+			c.queue = c.queue[1:] 
 		}
 		fmt.Printf("Process %d released the critical section.\n", processID)
 	}
@@ -105,14 +105,14 @@ func (c *Coordinator) executeCommand(command string) {
 	defer c.mutex.Unlock()
 
 	switch command {
-	case "1": // Imprimir a fila de pedidos atual
+	case "1": 
 		fmt.Println("Fila de Pedidos:", c.queue)
-	case "2": // Imprimir quantas vezes cada processo foi atendido
+	case "2": 
 		fmt.Println("Contagem de Processos:")
 		for id, count := range c.processCount {
 			fmt.Printf("Process %d: %d vezes\n", id, count)
 		}
-	case "3": // Encerrar a execução
+	case "3": 
 		c.shutdown()
 	}
 }
@@ -120,7 +120,7 @@ func (c *Coordinator) executeCommand(command string) {
 func (c *Coordinator) shutdown() {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
-	// Limpar os logs e resultado.txt
+	
 	os.Remove("resultado.txt")
 	os.Remove(logFile)
 	fmt.Println("Logs removidos e execução encerrada.")
@@ -161,6 +161,6 @@ func main() {
 		}
 	}()
 
-	// Iniciar a thread da interface de terminal
+	
 	coordinator.handleTerminalInput()
 }
