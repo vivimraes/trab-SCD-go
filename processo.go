@@ -1,4 +1,4 @@
-// processo.go
+
 package main
 
 import (
@@ -32,11 +32,11 @@ func main() {
 	defer conn.Close()
 
 	for i := 0; i < repetitions; i++ {
-		// Enviar REQUEST
+		
 		requestMsg := fmt.Sprintf("1|%s|%06d", processID, 0)
 		conn.Write([]byte(requestMsg))
 
-		// Receber GRANT
+		
 		buffer := make([]byte, F)
 		_, err := conn.Read(buffer)
 		if err != nil {
@@ -45,14 +45,14 @@ func main() {
 		}
 		fmt.Println("Received:", string(buffer))
 
-		// Escrever na região crítica (arquivo resultado.txt)
+		
 		writeToCriticalSection(processID)
 
-		// Enviar RELEASE
+		
 		releaseMsg := fmt.Sprintf("3|%s|%06d", processID, 0)
 		conn.Write([]byte(releaseMsg))
 
-		// Aguardar um tempo aleatório
+		
 		time.Sleep(time.Duration(random(1, 5)) * time.Second)
 	}
 }
